@@ -87,27 +87,7 @@ npx live-server
 ### Versi Web
 ![Screenshot Game Sudoku](path/to/screenshot.png)
 
-## 🤝 Kontribusi
-
-Kontribusi selalu diterima! Berikut cara untuk berkontribusi:
-
-1. Fork repository ini
-2. Buat branch baru (`git checkout -b fitur-baru`)
-3. Commit perubahan (`git commit -m 'Menambah fitur baru'`)
-4. Push ke branch (`git push origin fitur-baru`)
-5. Buat Pull Request
-
-## 📄 Lisensi
-
-Proyek ini dilisensikan di bawah [MIT License](LICENSE)
-
-## 👨‍💻 Author
-
-- Nama Author
-- Website: [website-author.com](https://website-author.com)
-- GitHub: [@username](https://github.com/username)
-
-## 🙏 Pengakuan
+## 🙏 Keterangan
 
 - Terinspirasi dari permainan Sudoku klasik project https://github.com/sr-tamim/sudoku-c-program
 - Menggunakan algoritma backtracking untuk generator puzzle
