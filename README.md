@@ -82,10 +82,10 @@ npx live-server
 ## 🎮 Demo
 
 ### Versi CLI
-
+(img/sudoku_cli.jpg)
 
 ### Versi Web
-![Screenshot Game Sudoku](path/to/screenshot.png)
+![Screenshot Game Sudoku](img/sudoku_html.jpg)
 
 ## 🙏 Keterangan
 
