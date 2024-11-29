@@ -2,7 +2,9 @@
 
 Implementasi permainan Sudoku dalam dua versi - CLI (Command Line Interface) dan Web berbasis HTML. Game ini dibangun menggunakan JavaScript dengan fitur lengkap permainan Sudoku klasik.
 
-![Screenshot Game Sudoku](img/sudoku_html.jpg)
+<p align="center">
+  <img src="img/sudoku_html.jpg" alt="Screenshot Game Sudoku">
+</p>
 
 ## 📝 Deskripsi
 
