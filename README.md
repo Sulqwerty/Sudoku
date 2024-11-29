@@ -2,6 +2,8 @@
 
 Implementasi permainan Sudoku dalam dua versi - CLI (Command Line Interface) dan Web berbasis HTML. Game ini dibangun menggunakan JavaScript dengan fitur lengkap permainan Sudoku klasik.
 
+![Screenshot Game Sudoku](img/sudoku_html.jpg)
+
 ## 📝 Deskripsi
 
 Sudoku adalah permainan teka-teki angka berbasis logika. Tujuannya adalah mengisi grid 9×9 dengan angka 1-9 sehingga setiap baris, kolom, dan kotak 3×3 berisi semua angka dari 1 hingga 9 tanpa pengulangan.
@@ -56,6 +58,8 @@ cd sudoku-game
 bash
 node sudoku-cli.js
 
+![Screenshot Game Sudoku](img/sudoku_cli.jpg)
+
 3. Untuk versi Web:
 - Buka file `sudoku.html` di browser
 - Atau gunakan live server:
@@ -78,14 +82,6 @@ npx live-server
 2. Klik sel yang ingin diisi
 3. Klik angka pada number pad untuk mengisi sel
 4. Gunakan tombol "Game Baru" untuk memulai permainan baru
-
-## 🎮 Demo
-
-### Versi CLI
-![Screenshot Game Sudoku](img/sudoku_cli.jpg)
-
-### Versi Web
-![Screenshot Game Sudoku](img/sudoku_html.jpg)
 
 ## 🙏 Keterangan
 
