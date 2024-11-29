@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Game</title>
+    <style>
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        .sudoku-board {
+            display: inline-grid;
+            grid-template-columns: repeat(9, 40px);
+            gap: 1px;
+            background: #999;
+            padding: 10px;
+            border: 2px solid #333;
+        }
+
+        /* Label untuk kolom (X) */
+        .column-labels {
+            display: grid;
+            grid-template-columns: repeat(9, 40px);
+            gap: 1px;
+            margin: 0 auto 5px;
+            padding-left: 30px; /* Ruang untuk label Y */
+        }
+
+        .column-label {
+            font-weight: bold;
+        }
+
+        /* Label untuk baris (Y) */
+        .row-label {
+            position: absolute;
+            left: -25px;
+            font-weight: bold;
+            line-height: 40px;
+        }
+
+        .board-row {
+            position: relative;
+            display: contents;
+        }
+
+        .cell {
+            width: 40px;
+            height: 40px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            border: 1px solid #ccc;
+        }
+
+        /* Garis tebal untuk blok 3x3 */
+        .cell[data-col="2"], .cell[data-col="5"] {
+            border-right: 2px solid #333;
+        }
+
+        .board-row[data-row="2"] .cell, .board-row[data-row="5"] .cell {
+            border-bottom: 2px solid #333;
+        }
+
+        .cell.fixed {
+            background: #f0f0f0;
+            cursor: not-allowed;
+        }
+
+        .cell.selected {
+            background: #e3f2fd;
+        }
+
+        .cell.invalid {
+            color: red;
+        }
+
+        .number-pad {
+            display: grid;
+            grid-template-columns: repeat(9, 1fr);
+            gap: 5px;
+            max-width: 400px;
+            margin: 20px auto;
+        }
+
+        .number-btn {
+            padding: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            border: 1px solid #999;
+            background: #fff;
+        }
+
+        .number-btn:hover {
+            background: #e3f2fd;
+        }
+
+        .difficulty-buttons {
+            margin: 20px 0;
+        }
+
+        .difficulty-btn {
+            padding: 10px 20px;
+            margin: 0 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background: #ddd;
+        }
+
+        .difficulty-btn.active {
+            background: #2196f3;
+            color: white;
+        }
+
+        .status {
+            margin: 20px 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .message {
+            margin: 10px 0;
+            color: #2196f3;
+            font-weight: bold;
+            min-height: 20px;
+        }
+
+        .new-game-btn {
+            padding: 10px 20px;
+            font-size: 16px;
+            background: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 0;
+        }
+
+        .new-game-btn:hover {
+            background: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Sudoku Game</h1>
+        
+        <div class="difficulty-buttons">
+            <button class="difficulty-btn" data-level="EASY">Mudah</button>
+            <button class="difficulty-btn active" data-level="MEDIUM">Sedang</button>
+            <button class="difficulty-btn" data-level="HARD">Sulit</button>
+        </div>
+
+        <button class="new-game-btn">Game Baru</button>
+
+        <div class="status">
+            Percobaan: <span id="attempts">0</span>
+        </div>
+
+        <div class="board-container">
+            <div class="sudoku-board" id="board"></div>
+        </div>
+
+        <div class="number-pad">
+            <button class="number-btn" data-number="1">1</button>
+            <button class="number-btn" data-number="2">2</button>
+            <button class="number-btn" data-number="3">3</button>
+            <button class="number-btn" data-number="4">4</button>
+            <button class="number-btn" data-number="5">5</button>
+            <button class="number-btn" data-number="6">6</button>
+            <button class="number-btn" data-number="7">7</button>
+            <button class="number-btn" data-number="8">8</button>
+            <button class="number-btn" data-number="9">9</button>
+        </div>
+
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        // Konstanta
+        const N = 9;
+        const MINI_BOX_SIZE = 3;
+        const DIFFICULTY = {
+            EASY: 13,
+            MEDIUM: 29,
+            HARD: 41
+        };
+
+        // Class SudokuBoard
+        class SudokuBoard {
+            constructor() {
+                this.solved = Array(N).fill().map(() => Array(N).fill(0));
+                this.unsolved = Array(N).fill().map(() => Array(N).fill(0));
+                this.emptyCells = DIFFICULTY.MEDIUM;
+            }
+
+            randomGenerator(num) {
+                return Math.floor(Math.random() * num) + 1;
+            }
+
+            checkIfSafe(i, j, num) {
+                return (
+                    this.isAbsentInRow(i, num) &&
+                    this.isAbsentInCol(j, num) &&
+                    this.isAbsentInBox(i - i % MINI_BOX_SIZE, j - j % MINI_BOX_SIZE, num)
+                );
+            }
+
+            isAbsentInBox(rowStart, colStart, num) {
+                for (let i = 0; i < MINI_BOX_SIZE; i++) {
+                    for (let j = 0; j < MINI_BOX_SIZE; j++) {
+                        if (this.unsolved[rowStart + i][colStart + j] === num) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            }
+
+            isAbsentInRow(i, num) {
+                return !this.unsolved[i].includes(num);
+            }
+
+            isAbsentInCol(j, num) {
+                return !this.unsolved.map(row => row[j]).includes(num);
+            }
+
+            fillValues() {
+                this.fillDiagonal();
+                this.fillRemaining(0, MINI_BOX_SIZE);
+                this.solved = this.unsolved.map(row => [...row]);
+                this.addEmptyCells();
+            }
+
+            fillDiagonal() {
+                for (let i = 0; i < N; i += MINI_BOX_SIZE) {
+                    this.fillBox(i, i);
+                }
+            }
+
+            fillBox(row, col) {
+                for (let i = 0; i < MINI_BOX_SIZE; i++) {
+                    for (let j = 0; j < MINI_BOX_SIZE; j++) {
+                        let num;
+                        do {
+                            num = this.randomGenerator(N);
+                        } while (!this.isAbsentInBox(row, col, num));
+                        this.unsolved[row + i][col + j] = num;
+                    }
+                }
+            }
+
+            fillRemaining(i, j) {
+                if (j >= N && i < N - 1) {
+                    i++;
+                    j = 0;
+                }
+                if (i >= N && j >= N) return true;
+
+                if (i < MINI_BOX_SIZE) {
+                    if (j < MINI_BOX_SIZE) j = MINI_BOX_SIZE;
+                } else if (i < N - MINI_BOX_SIZE) {
+                    if (j === Math.floor(i / MINI_BOX_SIZE) * MINI_BOX_SIZE) {
+                        j += MINI_BOX_SIZE;
+                    }
+                } else {
+                    if (j === N - MINI_BOX_SIZE) {
+                        i++;
+                        j = 0;
+                        if (i >= N) return true;
+                    }
+                }
+
+                for (let num = 1; num <= N; num++) {
+                    if (this.checkIfSafe(i, j, num)) {
+                        this.unsolved[i][j] = num;
+                        if (this.fillRemaining(i, j + 1)) return true;
+                        this.unsolved[i][j] = 0;
+                    }
+                }
+                return false;
+            }
+
+            addEmptyCells() {
+                let count = this.emptyCells;
+                while (count > 0) {
+                    const cellId = this.randomGenerator(N * N) - 1;
+                    const i = Math.floor(cellId / N);
+                    let j = cellId % N;
+                    if (j !== 0) j--;
+                    if (this.unsolved[i][j] !== 0) {
+                        count--;
+                        this.unsolved[i][j] = 0;
+                    }
+                }
+            }
+
+            isBoardSolved() {
+                for (let i = 0; i < N; i++) {
+                    for (let j = 0; j < N; j++) {
+                        if (this.unsolved[i][j] !== this.solved[i][j]) return false;
+                    }
+                }
+                return true;
+            }
+        }
+
+        // Game state
+        let game = null;
+        let selectedCell = null;
+        let attempts = 0;
+
+        // Fungsi untuk memulai game baru
+        function startGame(difficulty = 'MEDIUM') {
+            const board = new SudokuBoard();
+            board.emptyCells = DIFFICULTY[difficulty];
+            board.fillValues();
+            return board;
+        }
+
+        // Fungsi untuk membuat gerakan
+        function makeMove(game, row, col, value) {
+            if (row < 0 || row >= N || col < 0 || col >= N) {
+                return { success: false, message: "Posisi tidak valid" };
+            }
+            
+            if (game.unsolved[row][col] !== 0) {
+                return { success: false, message: "Sel sudah terisi" };
+            }
+            
+            if (value < 1 || value > 9) {
+                return { success: false, message: "Nilai tidak valid" };
+            }
+            
+            if (game.solved[row][col] === value) {
+                game.unsolved[row][col] = value;
+                return { 
+                    success: true, 
+                    message: "Gerakan valid",
+                    isComplete: game.isBoardSolved()
+                };
+            }
+            
+            return { success: false, message: "Nilai tidak sesuai" };
+        }
+
+        // Fungsi untuk membuat UI papan
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+
+            for (let i = 0; i < 9; i++) {
+                const row = document.createElement('div');
+                row.className = 'board-row';
+                row.dataset.row = i;
+
+                // Tambah label baris (Y)
+                const rowLabel = document.createElement('div');
+                rowLabel.className = 'row-label';
+                rowLabel.textContent = (i + 1);
+                row.appendChild(rowLabel);
+
+                for (let j = 0; j < 9; j++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = i;
+                    cell.dataset.col = j;
+                    
+                    const value = game.unsolved[i][j];
+                    if (value !== 0) {
+                        cell.textContent = value;
+                        cell.classList.add('fixed');
+                    }
+
+                    cell.addEventListener('click', selectCell);
+                    row.appendChild(cell);
+                }
+                board.appendChild(row);
+            }
+        }
+
+        // Fungsi untuk memilih sel
+        function selectCell(e) {
+            if (e.target.classList.contains('fixed')) return;
+            
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+            }
+
+            selectedCell = e.target;
+            selectedCell.classList.add('selected');
+        }
+
+        // Event listener untuk number pad
+        document.querySelectorAll('.number-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                if (!selectedCell) return;
+
+                const row = parseInt(selectedCell.dataset.row);
+                const col = parseInt(selectedCell.dataset.col);
+                const value = parseInt(btn.dataset.number);
+
+                const move = makeMove(game, row, col, value);
+                attempts++;
+                document.getElementById('attempts').textContent = attempts;
+
+                if (move.success) {
+                    selectedCell.textContent = value;
+                    selectedCell.classList.remove('invalid');
+                    
+                    if (move.isComplete) {
+                        document.getElementById('message').textContent = 
+                            "Selamat! Anda berhasil menyelesaikan puzzle!";
+                    }
+                } else {
+                    selectedCell.textContent = value;
+                    selectedCell.classList.add('invalid');
+                    document.getElementById('message').textContent = move.message;
+                }
+            });
+        });
+
+        // Event listener untuk tombol difficulty
+        document.querySelectorAll('.difficulty-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.difficulty-btn').forEach(b => 
+                    b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                const level = btn.dataset.level;
+                game = startGame(level);
+                attempts = 0;
+                document.getElementById('attempts').textContent = attempts;
+                document.getElementById('message').textContent = '';
+                createBoard();
+            });
+        });
+
+        // Event listener untuk tombol game baru
+        document.querySelector('.new-game-btn').addEventListener('click', () => {
+            const activeLevel = document.querySelector('.difficulty-btn.active').dataset.level;
+            game = startGame(activeLevel);
+            attempts = 0;
+            document.getElementById('attempts').textContent = attempts;
+            document.getElementById('message').textContent = '';
+            createBoard();
+        });
+
+        // Inisialisasi game
+        game = startGame('MEDIUM');
+        createBoard();
+    </script>
+</body>
+</html> 
