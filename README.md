@@ -51,13 +51,10 @@ Versi web dengan interface grafis yang memiliki:
 
 1. Clone repository ini: 
 
-bash
 git clone [https://github.com/Sulqwerty/Sudoku.git](https://github.com/Sulqwerty/Sudoku.git)
-cd sudoku-game
 
 2. Untuk versi CLI:
 
-bash
 node sudoku-cli.js
 
 ![Screenshot Game Sudoku](img/sudoku_cli.jpg)
