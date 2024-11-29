@@ -48,7 +48,7 @@ Versi web dengan interface grafis yang memiliki:
 1. Clone repository ini: 
 
 bash
-git clone https://github.com/username/sudoku-game.git
+git clone [https://github.com/username/sudoku-game.git](https://github.com/Sulqwerty/Sudoku.git)
 cd sudoku-game
 
 2. Untuk versi CLI:
