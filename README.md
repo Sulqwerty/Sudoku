@@ -27,7 +27,7 @@ Versi terminal yang dapat dijalankan menggunakan Node.js dengan fitur:
 - Cocok untuk penggunaan server-side
 
 ### 2. Versi Web (HTML)
-File: `index.html`
+File: `sudoku.html`
 
 Versi web dengan interface grafis yang memiliki:
 - UI yang interaktif dan responsif
@@ -57,7 +57,7 @@ bash
 node sudoku-cli.js
 
 3. Untuk versi Web:
-- Buka file `index.html` di browser
+- Buka file `sudoku.html` di browser
 - Atau gunakan live server:
 
 bash
